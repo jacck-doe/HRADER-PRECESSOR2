@@ -14,6 +14,7 @@ function App() {
     date: '*DATE'
   });
   const [activeEmailIndex, setActiveEmailIndex] = useState(0);
+  const [viewMode, setViewMode] = useState('comparison'); // 'comparison', 'modified', 'original'
 
   // Exact headers to remove (only these specific ones)
   const headersToRemove = [
@@ -583,6 +584,31 @@ John Smith`;
     }
   };
 
+  // Function to highlight differences between original and modified content
+  const highlightDifferences = (original, modified) => {
+    const originalLines = original.split('\n');
+    const modifiedLines = modified.split('\n');
+    const maxLines = Math.max(originalLines.length, modifiedLines.length);
+    
+    let result = '';
+    
+    for (let i = 0; i < maxLines; i++) {
+      const originalLine = originalLines[i] || '';
+      const modifiedLine = modifiedLines[i] || '';
+      
+      if (originalLine !== modifiedLine) {
+        result += `<div class="diff-line">
+          <div class="diff-original-line">${i + 1}: ${originalLine}</div>
+          <div class="diff-modified-line">${i + 1}: ${modifiedLine}</div>
+        </div>`;
+      } else {
+        result += `<div class="same-line">${i + 1}: ${originalLine}</div>`;
+      }
+    }
+    
+    return result;
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -796,12 +822,26 @@ John Smith`;
                       {processedEmails[activeEmailIndex].status === 'completed' ? '✅ Processed' : '❌ Error'}
                     </div>
                     {processedEmails[activeEmailIndex].status === 'completed' && (
-                      <button 
-                        onClick={copyModifiedEmail}
-                        className="btn copy-top-btn"
-                      >
-                        📋 Copy Modified Email
-                      </button>
+                      <div className="view-mode-selector">
+                        <button 
+                          onClick={() => setViewMode('comparison')}
+                          className={`btn view-btn ${viewMode === 'comparison' ? 'active' : ''}`}
+                        >
+                          📊 Comparison
+                        </button>
+                        <button 
+                          onClick={() => setViewMode('modified')}
+                          className={`btn view-btn ${viewMode === 'modified' ? 'active' : ''}`}
+                        >
+                          ✨ Modified Only
+                        </button>
+                        <button 
+                          onClick={() => setViewMode('original')}
+                          className={`btn view-btn ${viewMode === 'original' ? 'active' : ''}`}
+                        >
+                          📝 Original Only
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -882,28 +922,91 @@ John Smith`;
                     </div>
 
                     <div className="filtered-email-section">
-                      <h5>✨ Modified Email - {processedEmails[activeEmailIndex].name}</h5>
-                      <div className="email-preview">
-                        <textarea
-                          value={processedEmails[activeEmailIndex].filteredContent}
-                          readOnly
-                          rows={15}
-                          placeholder="Modified email will appear here..."
-                        />
+                      <div className="email-preview-header">
+                        <h5>
+                          {viewMode === 'comparison' && '📊 Original vs Modified Email'}
+                          {viewMode === 'modified' && '✨ Modified Email'}
+                          {viewMode === 'original' && '📝 Original Email'}
+                        </h5>
                         <div className="email-actions">
-                          <button 
-                            onClick={() => navigator.clipboard.writeText(processedEmails[activeEmailIndex].filteredContent)}
-                            className="btn copy-btn"
-                          >
-                            Copy This Email
-                          </button>
-                          <button 
-                            onClick={() => downloadEmail(processedEmails[activeEmailIndex].filteredContent, processedEmails[activeEmailIndex].name)}
-                            className="btn download-btn"
-                          >
-                            Download .eml
-                          </button>
+                          {viewMode === 'modified' && (
+                            <>
+                              <button 
+                                onClick={() => navigator.clipboard.writeText(processedEmails[activeEmailIndex].filteredContent)}
+                                className="btn copy-btn"
+                              >
+                                Copy Modified Email
+                              </button>
+                              <button 
+                                onClick={() => downloadEmail(processedEmails[activeEmailIndex].filteredContent, processedEmails[activeEmailIndex].name)}
+                                className="btn download-btn"
+                              >
+                                Download .eml
+                              </button>
+                            </>
+                          )}
+                          {viewMode === 'original' && (
+                            <button 
+                              onClick={() => navigator.clipboard.writeText(processedEmails[activeEmailIndex].originalContent)}
+                              className="btn copy-btn"
+                            >
+                              Copy Original Email
+                            </button>
+                          )}
                         </div>
+                      </div>
+                      
+                      <div className="email-preview-container">
+                        {viewMode === 'comparison' && (
+                          <div className="comparison-view">
+                            <div className="comparison-panel">
+                              <div className="panel-header original-header">
+                                <h6>📝 Original Email</h6>
+                              </div>
+                              <textarea
+                                value={processedEmails[activeEmailIndex].originalContent}
+                                readOnly
+                                rows={15}
+                                placeholder="Original email content..."
+                                className="original-email"
+                              />
+                            </div>
+                            <div className="comparison-panel">
+                              <div className="panel-header modified-header">
+                                <h6>✨ Modified Email</h6>
+                              </div>
+                              <textarea
+                                value={processedEmails[activeEmailIndex].filteredContent}
+                                readOnly
+                                rows={15}
+                                placeholder="Modified email content..."
+                                className="modified-email"
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
+                        {viewMode === 'modified' && (
+                          <div className="single-view">
+                            <textarea
+                              value={processedEmails[activeEmailIndex].filteredContent}
+                              readOnly
+                              rows={20}
+                              placeholder="Modified email will appear here..."
+                            />
+                          </div>
+                        )}
+                        
+                        {viewMode === 'original' && (
+                          <div className="single-view">
+                            <textarea
+                              value={processedEmails[activeEmailIndex].originalContent}
+                              readOnly
+                              rows={20}
+                              placeholder="Original email content..."
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </>
