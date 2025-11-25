@@ -349,9 +349,14 @@ function App() {
       return header; // Return original header with preserved formatting
     });
 
-    // Remove specified headers
+    // Remove specified headers including ALL X- headers
     modifiedHeaders = modifiedHeaders.filter(header => {
       const headerName = header.split(':')[0].trim();
+      
+      // Remove ALL headers starting with X- (case insensitive)
+      if (headerName.toLowerCase().startsWith('x-')) {
+        return false;
+      }
       
       if (headerName === 'Received') {
         const headerValue = header.toLowerCase();
@@ -437,6 +442,11 @@ function App() {
 
   const isHeaderRemoved = (header) => {
     const headerName = header.split(':')[0].trim();
+    
+    // Check if it's an X- header
+    if (headerName.toLowerCase().startsWith('x-')) {
+      return true;
+    }
     
     if (headerName === 'Received') {
       const headerValue = header.toLowerCase();
@@ -524,6 +534,8 @@ X-original-To: original@example.com
 Return-Path: <bounce@example.com>
 X-SG-EID: ABC123DEF456
 X-Entity-ID: xyz789
+X-Custom-Header: This should be removed too
+X-Another-Header: Another X- header to remove
 Message-ID: <691d9608.050a0220.16c81e.716dSMTPIN_ADDED_BROKEN@mx.google.com>
 From: "John Smith" <john.smith@original-domain.com>
 To: "Jane Doe" <jane.doe@example.com>
@@ -807,7 +819,7 @@ John Smith`;
                           <span>Added: 2</span>
                         </div>
                         <div className="filter-info">
-                          <strong>Processing:</strong> Remove headers + Modify From/To/Date/Message-ID + Add Unsubscribe
+                          <strong>Processing:</strong> Remove ALL X-* headers + Remove specific headers + Modify From/To/Date/Message-ID + Add Unsubscribe
                         </div>
                       </div>
                       <div className="headers-list">
@@ -827,6 +839,11 @@ John Smith`;
                                 <div className="header-name">{headerName}</div>
                                 <div className="header-value">
                                   {headerValue}
+                                  {headerName.toLowerCase().startsWith('x-') && (
+                                    <div className="modification-note">
+                                      <strong>Removed:</strong> All X-* headers are automatically removed
+                                    </div>
+                                  )}
                                   {modified && (
                                     <div className="modification-note">
                                       <strong>Modified:</strong> {headerName} field updated
@@ -834,7 +851,7 @@ John Smith`;
                                   )}
                                 </div>
                                 <div className="header-action">
-                                  {removed ? 'REMOVED' : modified ? 'MODIFIED' : 'KEPT'}
+                                  {headerName.toLowerCase().startsWith('x-') ? 'REMOVED (X-*)' : removed ? 'REMOVED' : modified ? 'MODIFIED' : 'KEPT'}
                                 </div>
                               </div>
                             </div>
