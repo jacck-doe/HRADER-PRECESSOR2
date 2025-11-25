@@ -338,7 +338,7 @@ function App() {
       const headerName = header.split(':')[0].trim();
       const originalSpacing = header.match(/^[^:]+:\s*/)?.[0] || headerName + ': ';
       
-      if (headerName === 'Message-ID') {
+      if (headerName.toLowerCase() === 'message-id'.toLowerCase()) {
         return insertEIDIntoMessageId(header);
       } else if (headerName === 'From') {
         return modifyFromHeader(header, customValues.rp);
