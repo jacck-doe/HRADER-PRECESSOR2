@@ -862,37 +862,8 @@ John Smith`;
                           <strong>Processing:</strong> Remove ALL X-* headers + Remove specific headers + Modify From/To/Date/Message-ID + Add Unsubscribe
                         </div>
                       </div>
-                      <div className="headers-list">
-                        {processedEmails[activeEmailIndex].headers.map((header, index) => {
-                          const headerName = header.split(':')[0].trim();
-                          const headerValue = header.split(':').slice(1).join(':').trim();
-                          const removed = isHeaderRemoved(header);
-                          const modified = isHeaderModified(header) && !removed;
-                          
-                          return (
-                            <div key={index} className={`header-item ${removed ? 'removed' : modified ? 'modified' : 'kept'}`}>
-                              <div className="header-number">#{index + 1}</div>
-                              <div className="header-status">
-                                {removed ? '❌' : modified ? '✏️' : '✅'}
-                              </div>
-                              <div className="header-content">
-                                <div className="header-name">{headerName}</div>
-                                <div className="header-value">
-                                  {headerValue}
-                                  {headerName.toLowerCase().startsWith('x-') && (
-                                    <div className="modification-note">
-                                      <strong>Removed:</strong> All X-* headers are automatically removed
-                                    </div>
-                                  )}
-                                  {modified && (
-                                    <div className="modification-note">
-                                      <strong>Modified:</strong> {headerName} field updated
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="header-action">
-                                  {headerName.toLowerCase().startsWith('x-') ? 'REMOVED (X-*)' : removed ? 'REMOVED' : modified ? 'MODIFIED' : 'KEPT'}
-                                </div>
+                     
+                               
                               </div>
                             </div>
                           );
