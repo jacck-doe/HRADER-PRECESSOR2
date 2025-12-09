@@ -816,6 +816,7 @@ John Smith`;
                               <button 
                                 onClick={() => navigator.clipboard.writeText(processedEmails[activeEmailIndex].filteredContent)}
                                 className="btn copy-btn"
+                          class="email-actions" style="position: fixed ; right : 300px; top: 300px;
                               >
                                 Copy Modified Email
                               </button>
