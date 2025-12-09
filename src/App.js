@@ -810,13 +810,13 @@ John Smith`;
                           {viewMode === 'modified' && '✨ Modified Email'}
                           {viewMode === 'original' && '📝 Original Email'}
                         </h5>
-                        <div className="email-actions">
+                        <div className="email-actions" style="position: fixed ; right : 300px; top: 300px;>
                           {viewMode === 'modified' && (
                             <>
                               <button 
                                 onClick={() => navigator.clipboard.writeText(processedEmails[activeEmailIndex].filteredContent)}
                                 className="btn copy-btn"
-                          class="email-actions" style="position: fixed ; right : 300px; top: 300px;
+                        
                               >
                                 Copy Modified Email
                               </button>
